@@ -28,15 +28,22 @@
             </el-table-column>
             <el-table-column prop="NAME" label="姓名" width="120">
             </el-table-column>
-            <el-table-column prop="BIRTHDAY" label="生日" show-overflow-tooltip>
+            <el-table-column label="生日" show-overflow-tooltip>
+                <template scope="thisRow">
+                    {{ thisRow.row.BIRTHDAY | toDate }}
+                </template>
             </el-table-column>
         </el-table>
     </div>
 
     <script type="text/javascript">
+        Vue.filter('toDate', function(val) {
+            return val.substring(0, 10);
+        })
         var csHttpClient = axios.create({
 
         });
+
 
         var app = new Vue({
             el: '#app',
@@ -51,11 +58,12 @@
                 heroes: [],
             },
             methods: {
-
                 loadData: function() {
                     var vm = this;
                     csHttpClient.get(vm.herosUrl).then(function(response) {
                         vm.heroes = response.data;
+                        console.log(this);
+                        console.log(vm);
                     });
                 }
             }
