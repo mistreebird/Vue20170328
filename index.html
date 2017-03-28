@@ -29,23 +29,38 @@
             </el-table-column>
             <el-table-column prop="INDEX_NO" label="編號" width="120">
             </el-table-column>
-            <el-table-column prop="NAME" label="姓名" width="120">
+            <el-table-column prop="NAME" label="姓名">
+                <template scope="scope">
+                     <template v-if="scope.row.INDEX_NO != hero.INDEX_NO">
+                         {{ scope.row.NAME }}
+                     </template>
+                <template v-else>
+                         <el-input v-model="hero.NAME" auto-complete="off" placeholder="請輸入姓名" width="120"></el-input>
+                     </template>
+                </template>
             </el-table-column>
             <el-table-column label="生日" show-overflow-tooltip>
-                <template scope="thisRow">
-                    {{ thisRow.row.BIRTHDAY | toDate }}
+                <template scope="scope">
+                     <template v-if="scope.row.INDEX_NO != hero.INDEX_NO">
+                         {{ scope.row.BIRTHDAY | toDate}}
+                     </template>
+                <template v-else>
+                        <el-date-picker v-model="hero.BIRTHDAY" type="date" placeholder="請選擇生日" align="right" :editable="false" :clearable="false"></el-date-picker>
+                     </template>
                 </template>
             </el-table-column>
             <el-table-column label="操作">
                 <template scope="scope">
-                     <el-button type="warning" icon="edit" @click="handleShowEdit(scope.$index, scope.row)"></el-button>
+                    <el-button type="primary" icon="check" @click="handleUpdate(true)" v-show="scope.row.INDEX_NO == hero.INDEX_NO"></el-button>
+                        <el-button type="warning" icon="close" @click="handleUpdate(false)" v-show="scope.row.INDEX_NO == hero.INDEX_NO"></el-button>
+                     <el-button type="warning" icon="edit" @click="handleShowEdit(scope.$index, scope.row)" v-show="scope.row.INDEX_NO != hero.INDEX_NO"></el-button>
                     <el-button type="danger" icon="delete" @click="handleDelete(scope.$index, scope.row)"></el-button>
                 </template>
             </el-table-column>
         </el-table>
 
         <!-- 新增表單(Start) -->
-        <el-dialog title="新增英雄" v-model="bCreateVisible" :close-on-click-modal="false">
+        <el-dialog title="新增英雄" v-model="bCreateVisible" :close-on-click-modal="false" @open="openDialog" @close="closeDialog">
             <el-form :model="hero">
                 <el-form-item label="姓名" label-width="120">
                     <el-input v-model="hero.NAME" auto-complete="off" placeholder="请输入姓名"></el-input>
@@ -150,8 +165,28 @@
                 },
                 handleShowEdit: function(index, row) {
                     this.hero = row;
+                },
+                closeDialog: function() {
+                    alert('close');
+                },
+                openDialog: function() {
+                    alert('open');
+                },
+                handleUpdate: function(bUpdate) {
+                    var vm = this;
+                    if (bUpdate) {
+                        csHttpClient.put(vm.herosUrl + "/" + vm.hero.INDEX_NO, vm.hero).then(function(response) {
 
-                    this.bCreateVisible = true;
+                            vm.$message({
+                                type: 'success',
+                                message: '修改' + vm.hero.NAME + '成功!'
+                            });
+                            vm.loadData();
+                            vm.hero = {};
+                        });
+                    } else {
+                        vm.hero = {};
+                    }
                 }
             }
         });
