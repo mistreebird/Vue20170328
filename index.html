@@ -38,6 +38,7 @@
             </el-table-column>
             <el-table-column label="操作">
                 <template scope="scope">
+                     <el-button type="warning" icon="edit" @click="handleShowEdit(scope.$index, scope.row)"></el-button>
                     <el-button type="danger" icon="delete" @click="handleDelete(scope.$index, scope.row)"></el-button>
                 </template>
             </el-table-column>
@@ -102,14 +103,28 @@
                 },
                 handleCreate: function() {
                     var vm = this;
-                    csHttpClient.post(vm.herosUrl, vm.hero).then(function(response) {
+                    if (vm.hero.INDEX_NO === undefined) {
+                        csHttpClient.post(vm.herosUrl, vm.hero).then(function(response) {
 
-                        vm.$message({
-                            type: 'success',
-                            message: '新增' + vm.hero.NAME + '成功，請繼續下一筆!'
+                            vm.$message({
+                                type: 'success',
+                                message: '新增' + vm.hero.NAME + '成功，請繼續下一筆!'
+                            });
+                            vm.hero.NAME = null;
                         });
-                        vm.hero.NAME = null;
-                    });
+                    } else {
+                        csHttpClient.put(vm.herosUrl + "/" + vm.hero.INDEX_NO, vm.hero).then(function(response) {
+
+                            vm.$message({
+                                type: 'success',
+                                message: '修改' + vm.hero.NAME + '成功!'
+                            });
+                            vm.loadData();
+                            vm.hero = {};
+                            vm.bCreateVisible = false;
+                        });
+                    }
+
                 },
                 handleCancel: function() {
                     this.loadData();
@@ -132,6 +147,11 @@
                             });
                         });
                     });
+                },
+                handleShowEdit: function(index, row) {
+                    this.hero = row;
+
+                    this.bCreateVisible = true;
                 }
             }
         });
