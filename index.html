@@ -51,9 +51,11 @@
                 heroes: [],
             },
             methods: {
-                loadData() {
-                    csHttpClient.get(this.herosUrl).then((response) => {
-                        this.heroes = response.data;
+
+                loadData: function() {
+                    var vm = this;
+                    csHttpClient.get(vm.herosUrl).then(function(response) {
+                        vm.heroes = response.data;
                     });
                 }
             }
